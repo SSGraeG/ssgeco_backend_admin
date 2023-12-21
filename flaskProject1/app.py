@@ -55,10 +55,16 @@ def signup():
         # 클라이언트로부터의 요청에서 필요한 정보 추출
         userId = request.json.get('userId')
         userPwd = request.json.get('userPwd')
-        print(f"Received data: userId={userId}, userPwd={userPwd}")
+        name = request.json.get('name')  # 추가
+        phone = request.json.get('phone')  # 추가
+        start_date = request.json.get('start_date')  # 추가
+        industryCategory = request.json.get('industryCategory')  # 추가
+        isSubscribed = request.json.get('isSubscribed')  # 추가
+
+        print(f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date}, industryCategory={industryCategory}, isSubscribed={isSubscribed}")
 
         # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
-        userInfo, status_code, headers = database.addUserInfo(userId, userPwd)
+        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSubscribed)
         print(f"Database response: {userInfo}")
 
         # 사용자 정보가 성공적으로 추가되면 JWT 토큰 생성
