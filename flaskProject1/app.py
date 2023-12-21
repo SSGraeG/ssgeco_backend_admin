@@ -6,8 +6,8 @@ from os import path, remove
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import create_access_token
 import os
-
-app = Flask(__name__, static_folder='./resources/')
+app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret"
 UPLOAD_FOLDER = path.join('.', 'resources/')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -54,17 +54,22 @@ def signup():
         print("-------------------------------------------------")
         # 클라이언트로부터의 요청에서 필요한 정보 추출
         userId = request.json.get('userId')
-        userPwd = request.json.get('userPwd1')
+        userPwd = request.json.get('userPwd')
+        print(f"Received data: userId={userId}, userPwd={userPwd}")
+
         # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
         userInfo, status_code, headers = database.addUserInfo(userId, userPwd)
+        print(f"Database response: {userInfo}")
+
         # 사용자 정보가 성공적으로 추가되면 JWT 토큰 생성
         access_token = create_access_token(identity=userId)
-        print(userPwd, userId)
+        print(f"Generated access token: {access_token}")
+
         return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
             'Content-Type': 'application/json'}
 
     except Exception as e:
-        print(e)
+        print(f"Error in signup: {e}")
         return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
 
 # if __name__ == "__main__":

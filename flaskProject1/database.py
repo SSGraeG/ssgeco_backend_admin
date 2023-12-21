@@ -1,10 +1,7 @@
-#database.py
+# database.py
 import pymysql
 from flask import jsonify
 from pymysql import connect
-
-# from datetime import datetime
-
 
 connectionString = {
     'host': '127.0.0.1',
@@ -38,6 +35,8 @@ def get_customer_data():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error fetching customer data"}), 500
+
+
 def idCheck(user_id, pwd):
     try:
         with connect(**connectionString) as con:
@@ -50,16 +49,112 @@ def idCheck(user_id, pwd):
         print(e)
 
 
+# 나머지 코드...
+
 def addUserInfo(userId, userPwd):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
-            sql = f"""INSERT INTO customer (email, password) VALUES("{userId}","{userPwd}")"""
-            print(cursor.execute(sql))
-            userInfo = cursor.fetchall()
+
+            # 회원 정보를 customer 테이블에 추가
+            sql = "INSERT INTO customer (email, password) VALUES (%s, %s)"
+            cursor.execute(sql, (userId, userPwd))
             con.commit()
 
-        return userInfo, 200, {'Content-Type': 'application/json'}
+            # 회원가입 성공 후에 새로운 스키마 생성 및 테이블 생성
+            cursor.execute("SELECT LAST_INSERT_ID() AS last_id;")
+            result = cursor.fetchone()
+
+            if result and 'last_id' in result:
+                last_row_id = result['last_id']
+
+                # 새로운 스키마 생성 쿼리
+                new_schema_name = f"company_{last_row_id}"
+                create_schema_query = f"CREATE DATABASE IF NOT EXISTS {new_schema_name};"
+                cursor.execute(create_schema_query)
+
+                # 새로운 스키마로 전환
+                cursor.execute(f"USE {new_schema_name};")
+
+                # 테이블 생성 쿼리
+                create_tables_query = """
+                    CREATE TABLE IF NOT EXISTS `user` (
+                        `email` VARCHAR(45) NOT NULL,
+                        `name` VARCHAR(45) NOT NULL,
+                        `phone` VARCHAR(45) NULL DEFAULT NULL,
+                        `address` VARCHAR(50) NULL DEFAULT NULL,
+                        `mileage` INT NULL DEFAULT '0',
+                        `password` VARCHAR(45) NOT NULL,
+                        PRIMARY KEY (`email`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+                    CREATE TABLE IF NOT EXISTS `mileage` (
+                        `id` INT NOT NULL AUTO_INCREMENT,
+                        `name` VARCHAR(45) NULL,
+                        `usepoint` INT NULL,
+                        PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+                    CREATE TABLE IF NOT EXISTS `mileage_tracking` (
+                        `id` INT NOT NULL AUTO_INCREMENT,
+                        `use_date` DATETIME NULL DEFAULT NULL,
+                        `user_email` VARCHAR(45) NOT NULL,
+                        `mileage_id` INT NOT NULL,
+                        PRIMARY KEY (`id`),
+                        INDEX `fk_tracking_user_idx` (`user_email` ASC) VISIBLE,
+                        INDEX `fk_mileage_tracking_mileage1_idx` (`mileage_id` ASC) VISIBLE,
+                        CONSTRAINT `fk_tracking_user`
+                            FOREIGN KEY (`user_email`)
+                            REFERENCES `user` (`email`)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT `fk_mileage_tracking_mileage1`
+                            FOREIGN KEY (`mileage_id`)
+                            REFERENCES `mileage` (`id`)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+                    CREATE TABLE IF NOT EXISTS `coupon` (
+                        `id` INT NOT NULL AUTO_INCREMENT,
+                        `name` VARCHAR(100) NOT NULL,
+                        `usepoint` INT NOT NULL,
+                        PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+                    CREATE TABLE IF NOT EXISTS `coupon_tracking` (
+                        `id` INT NOT NULL AUTO_INCREMENT,
+                        `use_date` DATETIME NOT NULL,
+                        `user_email` VARCHAR(45) NOT NULL,
+                        `coupon_id` INT NOT NULL,
+                        PRIMARY KEY (`id`),
+                        INDEX `fk_coupon_tracking_user1_idx` (`user_email` ASC) VISIBLE,
+                        INDEX `fk_coupon_tracking_coupon1_idx` (`coupon_id` ASC) VISIBLE,
+                        CONSTRAINT `fk_coupon_tracking_user1`
+                            FOREIGN KEY (`user_email`)
+                            REFERENCES `user` (`email`)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT `fk_coupon_tracking_coupon1`
+                            FOREIGN KEY (`coupon_id`)
+                            REFERENCES `coupon` (`id`)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+                """
+
+                # 여러 쿼리를 ; 으로 분리하여 리스트에 담기
+                queries = [query.strip() for query in create_tables_query.split(';') if query.strip()]
+
+                # 각 쿼리를 실행
+                for query in queries:
+                    cursor.execute(query)
+
+                return jsonify({"message": "User information added successfully, new schema created and mapped"}), 200, {'Content-Type': 'application/json'}
+
+            else:
+                return jsonify({"message": "Error getting last inserted ID"}), 500, {'Content-Type': 'application/json'}
 
     except Exception as e:
         print(e)
+        return jsonify({"message": "Error adding user information"}), 500, {'Content-Type': 'application/json'}
