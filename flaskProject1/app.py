@@ -1,72 +1,73 @@
+#app.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token
 import database
+from os import path, remove
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import create_access_token
 import os
 
-# Flask 애플리케이션 초기화
 app = Flask(__name__, static_folder='./resources/')
-CORS(app)
-# JWT 설정
 app.config["JWT_SECRET_KEY"] = "super-secret"
-UPLOAD_FOLDER = os.path.join('.', 'resources/')
+UPLOAD_FOLDER = path.join('.', 'resources/')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 jwt = JWTManager(app)
-
-# CORS 설정
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
-# 메인 페이지
+
 @app.route('/', methods=['GET'])
 def main():
     sort = request.args.get('sort')
     keyword = request.args.get('keyword')
-    return database.getItems(sort, keyword, "editor", "editor2")
+    return database.getItems(sort, keyword)
 
-# 고객 데이터 API
 @app.route('/api/get_data', methods=['GET'])
 def get_customer_data():
-    return database.get_customer_data("editor", "editor2")
+    return database.get_customer_data()
 
-# 차트 데이터 API
 @app.route('/api/getChartData/<usernum>', methods=['GET'])
 def get_chart_data(usernum):
+    # 여기에서 usernum을 기반으로 차트 데이터를 가져와서 응답합니다.
+    # 사용자 번호에 따른 차트 데이터를 반환하도록 데이터베이스 조회 등을 수행합니다.
+    # 예시: chart_data = get_chart_data_from_database(usernum)
     chart_data = {'usernum': usernum, 'chart': 'data'}
     return jsonify(chart_data)
 
-# 로그인 API
-@app.route('/login', methods=["POST"])
+@app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == 'POST':
         userId = request.json.get('email')
         password = request.json.get('password')
 
-        # idCheck 함수로 로그인 확인
-        isid = database.idCheck(userId, password, "editor", "editor2")
-        if isid:
+        isid = database.idCheck(userId, password)
+        if (isid):
             access_token = create_access_token(identity=userId)
             return jsonify({'token': access_token, 'userId': userId}), 200
         else:
             return jsonify({'message': '잘못된 로그인 정보입니다. 다시 입력해주세요.'}), 401
 
-# 회원가입 API
+
+# 회원가입페이지
 @app.route('/login/signup', methods=['POST'])
 def signup():
     try:
+        print("-------------------------------------------------")
+        # 클라이언트로부터의 요청에서 필요한 정보 추출
         userId = request.json.get('userId')
         userPwd = request.json.get('userPwd1')
-        selectedSchema = request.json.get('selectedSchema', 'editor')  # 기본값은 'editor'
-
-        # 아래의 함수에서 스키마 정보를 사용하여 작업을 수행하면 됩니다.
-        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, selectedSchema)
-
+        # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
+        userInfo, status_code, headers = database.addUserInfo(userId, userPwd)
+        # 사용자 정보가 성공적으로 추가되면 JWT 토큰 생성
         access_token = create_access_token(identity=userId)
+        print(userPwd, userId)
         return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
             'Content-Type': 'application/json'}
 
     except Exception as e:
         print(e)
         return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
-# 애플리케이션 실행
+
+# if __name__ == "__main__":
+#     app.run(debug = True)
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
