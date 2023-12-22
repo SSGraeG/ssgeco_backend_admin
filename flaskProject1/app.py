@@ -66,7 +66,46 @@ def get_user_data_by_company_id():
     except Exception as e:
         print("Error fetching user data:", e)
         return jsonify({"message": "Error fetching user data"}), 500
+@app.route('/company/user/coupon', methods=['POST'])
+def create_coupon():
+    try:
+        # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
+        company_id = request.headers.get('Company-ID')
 
+        # Company-ID가 None이면 디폴트 값으로 설정
+        if company_id is None:
+            company_id = 'default_company_id'
+
+        with pymysql.connect(**database.connectionString) as con:
+            cursor = con.cursor()
+
+            # 현재 사용자의 스키마로 전환
+            user_schema = f"company_{company_id}"
+            cursor.execute(f"USE {user_schema};")
+
+            # POST 요청에서 쿠폰 정보 가져오기
+            data = request.json
+            coupon_name = data.get('name')
+            usepoint = data.get('usepoint')
+
+            # 쿠폰을 coupon 테이블에 추가
+            sql = "INSERT INTO coupon (name, usepoint) VALUES (%s, %s);"
+            cursor.execute(sql, (coupon_name, usepoint))
+            con.commit()
+
+            # 생성한 쿠폰 정보 응답
+            created_coupon_id = cursor.lastrowid
+            created_coupon = {
+                'id': created_coupon_id,
+                'name': coupon_name,
+                'usepoint': usepoint
+            }
+
+            return jsonify({'coupon': created_coupon}), 201
+
+    except Exception as e:
+        print("Error creating coupon:", e)
+        return jsonify({"message": "Error creating coupon"}), 500
 @app.before_request
 def before_request():
     # 요청이 들어올 때마다 헤더에서 'Company-ID'를 읽어서 g 객체에 저장
