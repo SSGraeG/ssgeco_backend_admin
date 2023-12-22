@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
+
 import pymysql
 from flask import jsonify
 from pymysql import connect
 
+# 데이터베이스 연결 설정
 connectionString = {
     'host': '127.0.0.1',
     'port': 3306,
@@ -12,16 +14,6 @@ connectionString = {
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor
 }
-
-try:
-    # 데이터베이스 연결 시도
-    with connect(**connectionString) as con:
-        print("Database connected successfully!")
-        # 여기서 데이터베이스 작업 수행
-except pymysql.Error as e:
-    # 데이터베이스 연결 중 오류가 발생한 경우
-    print(f"Error connecting to the database: {e}")
-
 
 def get_customer_data():
     try:
@@ -33,23 +25,22 @@ def get_customer_data():
             return jsonify({'users': customer_data})
 
     except Exception as e:
-        print(e)
-        return jsonify({"message": "Error fetching customer data"}), 500
-
+        print(f"Error in get_customer_data: {e}")
+        return jsonify({"message": "고객 데이터를 가져오는 중 오류가 발생했습니다."}), 500
 
 def idCheck(user_id, pwd):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
-            sql = "SELECT * FROM customer " + "where email = %s and password = %s;"
+            sql = "SELECT * FROM customer WHERE email = %s AND password = %s;"
             cursor.execute(sql, [user_id, pwd])
             result = cursor.fetchall()
 
             return result
     except Exception as e:
-        print(e)
+        print(f"Error in idCheck: {e}")
 
-def addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSubscribed):
+def addUserInfo(userId, userPwd, name, phone, start_date, aiCategory, infraCategory, isSubscribed):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
@@ -64,13 +55,14 @@ def addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSu
 
             # 회원 정보를 customer 테이블에 추가
             sql = """
-                INSERT INTO customer (email, password, company_name, phone, start_date, category, subscription_status, end_date)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO customer (email, password, company_name, phone, start_date, aiCategory, infraCategory, subscription_status, end_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(sql, (userId, userPwd, name, phone, start_date, industryCategory, subscription_status, expiration_date))
+            cursor.execute(sql, (
+                userId, userPwd, name, phone, start_date, aiCategory, infraCategory, subscription_status, expiration_date))
             con.commit()
 
-            # 회원가입 성공 후에 새로운 스키마 생성 및 테이블 생성
+            # 새로운 스키마 생성
             cursor.execute("SELECT LAST_INSERT_ID() AS last_id;")
             result = cursor.fetchone()
 
@@ -87,52 +79,51 @@ def addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSu
 
                 # 테이블 생성 쿼리
                 create_tables_query = """
-                                    CREATE TABLE IF NOT EXISTS `user` (
-                                      `email` VARCHAR(45) NOT NULL,
-                                      `name` VARCHAR(45) NOT NULL,
-                                      `phone` VARCHAR(45) NULL DEFAULT NULL,
-                                      `address` VARCHAR(50) NULL DEFAULT NULL,
-                                      `mileage` INT NULL DEFAULT '0',
-                                      `password` VARCHAR(45) NOT NULL,
-                                      PRIMARY KEY (`email`))
-                                    ENGINE = InnoDB
-                                    DEFAULT CHARACTER SET = utf8mb4
-                                    COLLATE = utf8mb4_0900_ai_ci;
+                    CREATE TABLE IF NOT EXISTS `user` (
+                      `email` VARCHAR(45) NOT NULL,
+                      `name` VARCHAR(45) NOT NULL,
+                      `phone` VARCHAR(45) NULL DEFAULT NULL,
+                      `address` VARCHAR(50) NULL DEFAULT NULL,
+                      `mileage` INT NULL DEFAULT '0',
+                      `password` VARCHAR(45) NOT NULL,
+                      PRIMARY KEY (`email`))
+                    ENGINE = InnoDB
+                    DEFAULT CHARACTER SET = utf8mb4
+                    COLLATE = utf8mb4_0900_ai_ci;
 
-                                    CREATE TABLE IF NOT EXISTS `mileage_category` (
-                                      `id` INT NOT NULL AUTO_INCREMENT,
-                                      `name` VARCHAR(100) NOT NULL,
-                                      `usepoint` INT NOT NULL,
-                                      `category` VARCHAR(45) NOT NULL,
-                                      PRIMARY KEY (`id`))
-                                    ENGINE = InnoDB
-                                    DEFAULT CHARACTER SET = utf8mb4
-                                    COLLATE = utf8mb4_0900_ai_ci;
+                    CREATE TABLE IF NOT EXISTS `mileage_category` (
+                      `id` INT NOT NULL AUTO_INCREMENT,
+                      `name` VARCHAR(100) NOT NULL,
+                      `usepoint` INT NOT NULL,
+                      `category` VARCHAR(45) NOT NULL,
+                      PRIMARY KEY (`id`))
+                    ENGINE = InnoDB
+                    DEFAULT CHARACTER SET = utf8mb4
+                    COLLATE = utf8mb4_0900_ai_ci;
 
-                                    CREATE TABLE IF NOT EXISTS `mileage_tracking` (
-                                         `id` INT ZEROFILL NOT NULL AUTO_INCREMENT,
-                                      `use_date` DATETIME NULL DEFAULT NULL,
-                                      `user_email` VARCHAR(45) NOT NULL,
-                                      `category` VARCHAR(45) NOT NULL,
-                                      `mileage_category_id` INT NOT NULL,
-                                      PRIMARY KEY (`id`),
-                                      INDEX `fk_tracking_user_idx` (`user_email` ASC) VISIBLE,
-                                      INDEX `fk_milege_tracking_mileage_category1_idx` (`mileage_category_id` ASC) VISIBLE,
-                                      CONSTRAINT `fk_tracking_user`
-                                        FOREIGN KEY (`user_email`)
-                                        REFERENCES `user` (`email`)
-                                        ON DELETE CASCADE
-                                        ON UPDATE CASCADE,
-                                      CONSTRAINT `fk_milege_tracking_mileage_category1`
-                                        FOREIGN KEY (`mileage_category_id`)
-                                        REFERENCES `mileage_category` (`id`)
-                                        ON DELETE NO ACTION
-                                        ON UPDATE NO ACTION)
-                                    ENGINE = InnoDB
-                                    DEFAULT CHARACTER SET = utf8mb4
-                                    COLLATE = utf8mb4_0900_ai_ci;
-
-                                """
+                    CREATE TABLE IF NOT EXISTS `mileage_tracking` (
+                      `id` INT ZEROFILL NOT NULL AUTO_INCREMENT,
+                      `use_date` DATETIME NULL DEFAULT NULL,
+                      `user_email` VARCHAR(45) NOT NULL,
+                      `category` VARCHAR(45) NOT NULL,
+                      `mileage_category_id` INT NOT NULL,
+                      PRIMARY KEY (`id`),
+                      INDEX `fk_tracking_user_idx` (`user_email` ASC) VISIBLE,
+                      INDEX `fk_milege_tracking_mileage_category1_idx` (`mileage_category_id` ASC) VISIBLE,
+                      CONSTRAINT `fk_tracking_user`
+                        FOREIGN KEY (`user_email`)
+                        REFERENCES `user` (`email`)
+                        ON DELETE CASCADE
+                        ON UPDATE CASCADE,
+                      CONSTRAINT `fk_milege_tracking_mileage_category1`
+                        FOREIGN KEY (`mileage_category_id`)
+                        REFERENCES `mileage_category` (`id`)
+                        ON DELETE NO ACTION
+                        ON UPDATE NO ACTION)
+                    ENGINE = InnoDB
+                    DEFAULT CHARACTER SET = utf8mb4
+                    COLLATE = utf8mb4_0900_ai_ci;
+                """
 
                 # 여러 쿼리를 ; 으로 분리하여 리스트에 담기
                 queries = [query.strip() for query in create_tables_query.split(';') if query.strip()]
@@ -151,6 +142,7 @@ def addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSu
         print(e)
         return jsonify({"message": "사용자 정보를 추가하는 중 오류가 발생했습니다."}), 500, {'Content-Type': 'application/json'}
 
+# 사용자 정보 및 회사 ID 가져오기
 def get_user_info_and_company_id(user_id, pwd):
     try:
         with connect(**connectionString) as con:
@@ -169,5 +161,3 @@ def get_user_info_and_company_id(user_id, pwd):
     except Exception as e:
         print(e)
         return None, None
-
-

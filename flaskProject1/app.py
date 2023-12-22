@@ -213,16 +213,19 @@ def signup():
         # 클라이언트로부터의 요청에서 필요한 정보 추출
         userId = request.json.get('userId')
         userPwd = request.json.get('userPwd')
-        name = request.json.get('name')  # 추가
-        phone = request.json.get('phone')  # 추가
-        start_date = request.json.get('start_date')  # 추가
-        industryCategory = request.json.get('industryCategory')  # 추가
-        isSubscribed = request.json.get('isSubscribed')  # 추가
+        name = request.json.get('name')
+        phone = request.json.get('phone')
+        start_date = request.json.get('start_date')
+        aiCategory = request.json.get('aiCategory')  # 수정
+        infraCategory = request.json.get('infraCategory')  # 수정
+        isSubscribed = request.json.get('isSubscribed')
 
-        print(f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date}, industryCategory={industryCategory}, isSubscribed={isSubscribed}")
+        print(
+            f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date}, aiCategory={aiCategory}, infraCategory={infraCategory}, isSubscribed={isSubscribed}")
 
         # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
-        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, industryCategory, isSubscribed)
+        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, aiCategory,
+                                                              infraCategory, isSubscribed)
         print(f"Database response: {userInfo}")
 
         # 사용자 정보가 성공적으로 추가되면 JWT 토큰 생성
@@ -236,7 +239,35 @@ def signup():
         print(f"Error in signup: {e}")
         return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
 
-# if __name__ == "__main__":
-#     app.run(debug = True)
+@app.route('/company/user/<email>', methods=['DELETE'])
+def delete_user(email):
+    try:
+        with pymysql.connect(**database.connectionString) as con:
+            cursor = con.cursor()
+            user_schema = f"company_{g.company_id}"
+            cursor.execute(f"USE {user_schema};")
+            sql = "DELETE FROM user WHERE email = %s;"
+            cursor.execute(sql, (email,))
+            con.commit()
+            return jsonify({"message": f"User {email} deleted successfully"}), 200
+    except Exception as e:
+        print("Error deleting user:", e)
+        return jsonify({"message": "Error deleting user"}), 500
+
+@app.route('/company/user/coupon/<coupon_id>', methods=['DELETE'])
+def delete_coupon(coupon_id):
+    try:
+        with pymysql.connect(**database.connectionString) as con:
+            cursor = con.cursor()
+            user_schema = f"company_{g.company_id}"
+            cursor.execute(f"USE {user_schema};")
+            sql = "DELETE FROM mileage_category WHERE id = %s;"
+            cursor.execute(sql, (coupon_id,))
+            con.commit()
+            return jsonify({"message": f"Coupon {coupon_id} deleted successfully"}), 200
+    except Exception as e:
+        print("Error deleting coupon:", e)
+        return jsonify({"message": "Error deleting coupon"}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
