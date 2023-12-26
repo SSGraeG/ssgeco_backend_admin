@@ -41,7 +41,7 @@ def get_user_data():
 
 
 @app.route('/company/user', methods=['GET'])
-def get_user_data_by_company_id():
+def get_user_info_and_company_id_and_role():
     try:
         # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
         company_id = request.headers.get('Company-ID')
@@ -187,7 +187,7 @@ def login():
         userId = request.json.get('email')
         password = request.json.get('password')
 
-        user_info, company_id = database.get_user_info_and_company_id(userId, password)
+        user_info, company_id, role = database.get_user_info_and_company_id_and_role(userId, password)
 
         if user_info and company_id:
             with pymysql.connect(**database.connectionString) as con:
@@ -195,12 +195,20 @@ def login():
                 schema_name = f"company_{company_id}"
                 cursor.execute(f"USE {schema_name};")
 
-            # 응답에 'company_id' 포함
+            # 응답에 'company_id'와 'role' 포함
             response = {
                 'token': create_access_token(identity=userId),
                 'userId': userId,
-                'company_id': company_id
+                'company_id': company_id,
+                'role': role
             }
+
+            # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
+            if role == 1:
+                response['can_access_admin'] = True
+            else:
+                response['can_access_admin'] = False
+
             return jsonify(response), 200
 
         return jsonify({'message': '잘못된 로그인 정보입니다. 다시 입력해주세요.'}), 401

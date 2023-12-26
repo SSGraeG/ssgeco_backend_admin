@@ -142,22 +142,22 @@ def addUserInfo(userId, userPwd, name, phone, start_date, aiCategory, infraCateg
         print(e)
         return jsonify({"message": "사용자 정보를 추가하는 중 오류가 발생했습니다."}), 500, {'Content-Type': 'application/json'}
 
-# 사용자 정보 및 회사 ID 가져오기
-def get_user_info_and_company_id(user_id, pwd):
+def get_user_info_and_company_id_and_role(user_id, pwd):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
-            sql = "SELECT email, company_id FROM customer WHERE email = %s AND password = %s;"
+            sql = "SELECT email, company_id, role FROM customer WHERE email = %s AND password = %s;"
             cursor.execute(sql, [user_id, pwd])
             result = cursor.fetchone()
 
             if result:
                 user_info = {'email': result['email']}
                 company_id = result['company_id']
-                return user_info, company_id
+                role = result['role']
+                return user_info, company_id, role
 
-            return None, None
+            return None, None, None
 
     except Exception as e:
-        print(e)
-        return None, None
+        print(f"Error in get_user_info_and_company_id_and_role: {e}")
+        return None, None, None
