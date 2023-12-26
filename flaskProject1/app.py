@@ -1,142 +1,36 @@
 #app.py
-from flask import request, jsonify
-import pymysql
-import database
+from flask import request
+from route import database
 from os import path
 from flask import Flask, g
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from flask_jwt_extended import create_access_token
+from route.user import user_bp
+from route.manage import manage_bp
+from route.chart import chart_bp
+from route.admin import admin_bp
+
 
 app = Flask(__name__)
-app.config['JSON_AS_ASCII'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret"
 UPLOAD_FOLDER = path.join('.', 'resources/')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 jwt = JWTManager(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # OPTIONS 메서드 처리를 위한 라우트
 
-#인식못할때 라우팅
-@app.route('/company_undefined/user', methods=['GET', 'OPTIONS'])
-def get_user_data():
-    if request.method == 'OPTIONS':
-        return '', 200  # OPTIONS 메서드에 대한 응답
-    try:
-        with pymysql.connect(**database.connectionString) as con:
-            cursor = con.cursor()
-            # 현재 사용자의 스키마로 전환
-            user_schema = f"company_{g.company_id}"
-            cursor.execute(f"USE {user_schema};")
-            # 사용자 정보 조회 쿼리
-            sql = "SELECT * FROM user;"
-            cursor.execute(sql)
-            user_data = cursor.fetchall()
 
-            return jsonify({'users': user_data})
+# Blueprint 등록
+app.register_blueprint(user_bp)
+app.register_blueprint(manage_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(chart_bp)
 
-    except Exception as e:
-        print("Error fetching user data:", e)
-        return jsonify({"message": "Error fetching user data"}), 500
+@app.route('/', methods=['GET'])
+def main():
+    sort = request.args.get('sort')
+    keyword = request.args.get('keyword')
+    return database.getItems(sort, keyword)
 
-
-@app.route('/company/user', methods=['GET'])
-def get_user_info_and_company_id_and_role():
-    try:
-        # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
-        company_id = request.headers.get('Company-ID')
-
-        # Company-ID가 None이면 디폴트 값으로 설정
-        if company_id is None:
-            company_id = 'default_company_id'
-
-        with pymysql.connect(**database.connectionString) as con:
-            cursor = con.cursor()
-
-            # 현재 사용자의 스키마로 전환
-            user_schema = f"company_{company_id}"
-            cursor.execute(f"USE {user_schema};")
-
-            # 사용자 정보 조회 쿼리
-            sql = "SELECT * FROM user;"
-            cursor.execute(sql)
-            user_data = cursor.fetchall()
-
-            return jsonify({'users': user_data})
-
-    except Exception as e:
-        print("Error fetching user data:", e)
-        return jsonify({"message": "Error fetching user data"}), 500
-
-@app.route('/company/user/coupon', methods=['GET', 'POST'])
-def manage_coupons():
-    if request.method == 'GET':
-        try:
-            # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
-            company_id = request.headers.get('Company-ID')
-
-            # Company-ID가 None이면 디폴트 값으로 설정
-            if company_id is None:
-                company_id = 'default_company_id'
-
-            with pymysql.connect(**database.connectionString) as con:
-                cursor = con.cursor()
-
-                # 현재 사용자의 스키마로 전환
-                user_schema = f"company_{company_id}"
-                cursor.execute(f"USE {user_schema};")
-
-                # 쿠폰 정보 조회 쿼리
-                sql = "SELECT * FROM mileage_category;"
-                cursor.execute(sql)
-                coupon_data = cursor.fetchall()
-
-                return jsonify({'coupons': coupon_data})
-
-        except Exception as e:
-            print("Error fetching coupon data:", e)
-            return jsonify({"message": "Error fetching coupon data"}), 500
-    elif request.method == 'POST':
-        try:
-            # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
-            company_id = request.headers.get('Company-ID')
-
-            # Company-ID가 None이면 디폴트 값으로 설정
-            if company_id is None:
-                company_id = 'default_company_id'
-
-            with pymysql.connect(**database.connectionString) as con:
-                cursor = con.cursor()
-
-                # 현재 사용자의 스키마로 전환
-                user_schema = f"company_{company_id}"
-                cursor.execute(f"USE {user_schema};")
-
-                # POST 요청에서 쿠폰 정보 가져오기
-                data = request.json
-                coupon_name = data.get('name')
-                usepoint = data.get('usepoint')
-                category = data.get('category')  # Added line to get category
-
-                # 쿠폰을 coupon 테이블에 추가
-                sql = "INSERT INTO mileage_category (name, usepoint, category) VALUES (%s, %s, %s);"
-                cursor.execute(sql, (coupon_name, usepoint, category))
-                con.commit()
-
-                # 생성한 쿠폰 정보 응답
-                created_coupon_id = cursor.lastrowid
-                created_coupon = {
-                    'id': created_coupon_id,
-                    'name': coupon_name,
-                    'usepoint': usepoint,
-                    'category': category  # Include category in the response
-                }
-
-                return jsonify({'coupon': created_coupon}), 201
-
-        except Exception as e:
-            print("Error creating coupon:", e)
-            return jsonify({"message": "Error creating coupon"}), 500
 @app.before_request
 def before_request():
     # 요청이 들어올 때마다 헤더에서 'Company-ID'를 읽어서 g 객체에 저장
@@ -144,138 +38,6 @@ def before_request():
 # g.company_id가 None이면 오류를 방지하기 위해 기본값으로 설정
     if g.company_id is None:
         g.company_id = '69'
-@app.route('/', methods=['GET'])
-def main():
-    sort = request.args.get('sort')
-    keyword = request.args.get('keyword')
-    return database.getItems(sort, keyword)
-
-@app.route('/rowadmin', methods=['GET'])
-def admin_page():
-    try:
-        with pymysql.connect(**database.connectionString) as con:
-            cursor = con.cursor()
-            # 현재 사용자의 스키마로 전환
-            user_schema = f"company_{g.company_id}"
-            cursor.execute(f"USE {user_schema};")
-            # 사용자 정보 조회 쿼리
-            sql = "SELECT * FROM user;"
-            cursor.execute(sql)
-            user_data = cursor.fetchall()
-
-            return jsonify({'users': user_data})
-
-    except Exception as e:
-        print("Error fetching user data:", e)
-        return jsonify({"message": "Error fetching user data"}), 500
-
-@app.route('/api/get_data', methods=['GET'])
-def get_customer_data():
-    return database.get_customer_data()
-
-@app.route('/api/getChartData/<usernum>', methods=['GET'])
-def get_chart_data(usernum):
-    # 여기에서 usernum을 기반으로 차트 데이터를 가져와서 응답합니다.
-    # 사용자 번호에 따른 차트 데이터를 반환하도록 데이터베이스 조회 등을 수행합니다.
-    # 예시: chart_data = get_chart_data_from_database(usernum)
-    chart_data = {'usernum': usernum, 'chart': 'data'}
-    return jsonify(chart_data)
-
-@app.route('/login', methods=["POST"])
-def login():
-    if request.method == 'POST':
-        userId = request.json.get('email')
-        password = request.json.get('password')
-
-        user_info, company_id, role = database.get_user_info_and_company_id_and_role(userId, password)
-
-        if user_info and company_id:
-            with pymysql.connect(**database.connectionString) as con:
-                cursor = con.cursor()
-                schema_name = f"company_{company_id}"
-                cursor.execute(f"USE {schema_name};")
-
-            # 응답에 'company_id'와 'role' 포함
-            response = {
-                'token': create_access_token(identity=userId),
-                'userId': userId,
-                'company_id': company_id,
-                'role': role
-            }
-
-            # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
-            if role == 1:
-                response['can_access_admin'] = True
-            else:
-                response['can_access_admin'] = False
-
-            return jsonify(response), 200
-
-        return jsonify({'message': '잘못된 로그인 정보입니다. 다시 입력해주세요.'}), 401
-
-# 회원가입페이지
-@app.route('/login/signup', methods=['POST'])
-def signup():
-    try:
-        print("-------------------------------------------------")
-        # 클라이언트로부터의 요청에서 필요한 정보 추출
-        userId = request.json.get('userId')
-        userPwd = request.json.get('userPwd')
-        name = request.json.get('name')
-        phone = request.json.get('phone')
-        start_date = request.json.get('start_date')
-        aiCategory = request.json.get('aiCategory')  # 수정
-        infraCategory = request.json.get('infraCategory')  # 수정
-        isSubscribed = request.json.get('isSubscribed')
-
-        print(
-            f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date}, aiCategory={aiCategory}, infraCategory={infraCategory}, isSubscribed={isSubscribed}")
-
-        # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
-        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, aiCategory,
-                                                              infraCategory, isSubscribed)
-        print(f"Database response: {userInfo}")
-
-        # 사용자 정보가 성공적으로 추가되면 JWT 토큰 생성
-        access_token = create_access_token(identity=userId)
-        print(f"Generated access token: {access_token}")
-
-        return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
-            'Content-Type': 'application/json'}
-
-    except Exception as e:
-        print(f"Error in signup: {e}")
-        return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
-
-@app.route('/company/user/<email>', methods=['DELETE'])
-def delete_user(email):
-    try:
-        with pymysql.connect(**database.connectionString) as con:
-            cursor = con.cursor()
-            user_schema = f"company_{g.company_id}"
-            cursor.execute(f"USE {user_schema};")
-            sql = "DELETE FROM user WHERE email = %s;"
-            cursor.execute(sql, (email,))
-            con.commit()
-            return jsonify({"message": f"User {email} deleted successfully"}), 200
-    except Exception as e:
-        print("Error deleting user:", e)
-        return jsonify({"message": "Error deleting user"}), 500
-
-@app.route('/company/user/coupon/<coupon_id>', methods=['DELETE'])
-def delete_coupon(coupon_id):
-    try:
-        with pymysql.connect(**database.connectionString) as con:
-            cursor = con.cursor()
-            user_schema = f"company_{g.company_id}"
-            cursor.execute(f"USE {user_schema};")
-            sql = "DELETE FROM mileage_category WHERE id = %s;"
-            cursor.execute(sql, (coupon_id,))
-            con.commit()
-            return jsonify({"message": f"Coupon {coupon_id} deleted successfully"}), 200
-    except Exception as e:
-        print("Error deleting coupon:", e)
-        return jsonify({"message": "Error deleting coupon"}), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
