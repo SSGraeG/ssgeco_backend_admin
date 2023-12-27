@@ -30,8 +30,10 @@ def login():
             # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
             if role == 1:
                 response['can_access_admin'] = True
+                response['can_access_admin2'] = True
             else:
                 response['can_access_admin'] = False
+                response['can_access_admin2'] = False
             return jsonify(response), 200
         return jsonify({'message': '잘못된 로그인 정보입니다. 다시 입력해주세요.'}), 401
 
