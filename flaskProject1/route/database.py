@@ -6,11 +6,11 @@ import os
 
 # 데이터베이스 연결 설정
 connectionString = {
-    'host': '127.0.0.1',
+    'host': 'eco-rds.cykey8vytdto.ap-northeast-2.rds.amazonaws.com',
     'port': 3306,
-    'database': 'editor',
-    'user': 'root',
-    'password': 'passwd',
+    'database': 'eco',
+    'user': 'admin',
+    'password': 'password',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor
 }
