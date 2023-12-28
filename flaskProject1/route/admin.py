@@ -53,7 +53,7 @@ def delete_customer(email):
             cursor = con.cursor()
 
             # 스키마 변경
-            cursor.execute("USE editor;")
+            cursor.execute("USE eco;")
 
             # 테이블명 가져오기
             table_name = 'customer'
