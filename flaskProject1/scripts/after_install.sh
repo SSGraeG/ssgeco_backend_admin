@@ -2,10 +2,8 @@
 
 cd   /home/ubuntu/admin_BE
 
-
 echo ">>> pip install ----------------------"
 pip install -r requirements.txt
-
 
 echo ">>> remove template files ------------"
 rm -rf appspec.yml requirements.txt
