@@ -10,5 +10,5 @@ else
     echo ${pid} is not running.
 fi
 
-rm -rf /home/ubuntu/admin_BE
-mkdir  /home/ubuntu/admin_BE
+rm -rf /home/ubuntu/ssgAdminBE
+mkdir  /home/ubuntu/ssgAdminBE
