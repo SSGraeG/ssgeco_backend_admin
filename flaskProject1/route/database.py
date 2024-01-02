@@ -50,7 +50,7 @@ def idCheck(user_id, pwd):
     except Exception as e:
         print(f"Error in idCheck: {e}")
 
-def addUserInfo(userId, userPwd, name, phone, start_date, aiCategory, infraCategory, isSubscribed):
+def addUserInfo(userId, userPwd, name, phone, start_date,category, aiCategory, infraCategory, isSubscribed):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
@@ -65,11 +65,11 @@ def addUserInfo(userId, userPwd, name, phone, start_date, aiCategory, infraCateg
 
             # 회원 정보를 customer 테이블에 추가
             sql = """
-                INSERT INTO customer (email, password, company_name, phone, start_date, aiCategory, infraCategory, subscription_status, end_date)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO customer (email, password, company_name, phone, start_date,category, aiCategory, infraCategory, subscription_status, end_date)
+                VALUES (%s, %s, %s,%s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (
-                userId, userPwd, name, phone, start_date, aiCategory, infraCategory, subscription_status, expiration_date))
+                userId, userPwd, name, phone, start_date,category, aiCategory, infraCategory, subscription_status, expiration_date))
             con.commit()
 
             # 새로운 스키마 생성

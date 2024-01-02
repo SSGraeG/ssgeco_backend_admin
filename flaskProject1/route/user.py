@@ -46,15 +46,16 @@ def signup():
         name = request.json.get('name')
         phone = request.json.get('phone')
         start_date = request.json.get('start_date')
+        category = request.json.get('category')  # 수정
         aiCategory = request.json.get('aiCategory')  # 수정
         infraCategory = request.json.get('infraCategory')  # 수정
         isSubscribed = request.json.get('isSubscribed')
 
         print(
-            f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date}, aiCategory={aiCategory}, infraCategory={infraCategory}, isSubscribed={isSubscribed}")
+            f"Received data: userId={userId}, userPwd={userPwd}, name={name}, phone={phone}, start_date={start_date},category={category}, aiCategory={aiCategory}, infraCategory={infraCategory}, isSubscribed={isSubscribed}")
 
         # 사용자 정보를 데이터베이스에 추가하고 결과를 받아옴
-        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, aiCategory,
+        userInfo, status_code, headers = database.addUserInfo(userId, userPwd, name, phone, start_date, category, aiCategory,
                                                               infraCategory, isSubscribed)
         print(f"Database response: {userInfo}")
 
