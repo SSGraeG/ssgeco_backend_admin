@@ -1,5 +1,5 @@
 import pymysql
-from flask import Blueprint, jsonify, g, request
+from flask import Blueprint, jsonify, g
 from . import database
 
 admin_bp = Blueprint('admin', __name__)

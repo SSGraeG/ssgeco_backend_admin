@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd   /home/ubuntu/admin_BE
+cd   /home/ubuntu/ssgAdminBE
 
 echo ">>> pip install ----------------------"
 pip install -r requirements.txt
@@ -13,7 +13,7 @@ echo ">>> change owner to ubuntu -----------"
 chown -R ubuntu /home/ubuntu/admin_BE
 
 
-cd   /home/ubuntu/admin_BE
+cd   /home/ubuntu/ssgAdminBE
 
 touch /home/ubuntu/admin_BE/log.txt
 

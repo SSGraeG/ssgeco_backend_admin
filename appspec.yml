@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/admin_BE
+    destination: /home/ubuntu/ssgAdminBE
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
