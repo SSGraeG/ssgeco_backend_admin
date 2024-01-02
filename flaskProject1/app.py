@@ -39,5 +39,7 @@ def before_request():
     if g.company_id is None:
         g.company_id = '69'
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+if __name__ == '__main__':
+    # Use SSL context for HTTPS
+    context = ('path/to/certificate.crt', 'path/to/private.key')
+    app.run(debug=True, host='0.0.0.0', port=443, ssl_context=context)
