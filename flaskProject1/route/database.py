@@ -28,7 +28,11 @@ def get_customer_data():
             sql = "SELECT * FROM customer;"
             cursor.execute(sql)
             customer_data = cursor.fetchall()
-            return jsonify({'users': customer_data})
+
+            # Exclude the first record from the list
+            modified_customer_data = customer_data[1:]
+
+            return jsonify({'users': modified_customer_data})
 
     except Exception as e:
         print(f"Error in get_customer_data: {e}")
