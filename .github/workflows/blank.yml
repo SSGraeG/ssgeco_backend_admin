@@ -1,4 +1,4 @@
-name: Deploy to Amazon S3 bucket
+name: Deploy to Amazon EC2
 
 on:
   push:
@@ -7,49 +7,40 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: adminbe
+  CODE_DEPLOY_APPLICATION_NAME: Be_admin
+  CODE_DEPLOY_DEPLOY_GROUP_NAME: Admin_Be
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
-  build:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-      - if: steps.npm-cache.outputs.cache-hit == 'true'
-        run: echo 'npm cache hit!'
-      - if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: echo 'npm cache missed!'
+    - name: Upload to AWS S3
+      run: |
+        aws deploy push \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+          --ignore-hidden-files \
+          --source .
 
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install
-
-      - name: Build
-        run: npm run build
-
-      - name: Remove template files
-        run: rm -rf node_modules public src index.html package*
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: upload to S3
-        run: aws s3 sync build/ s3://${{ env.S3_BUCKET_NAME }} --acl public-read
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Deploy to AWS EC2 from S3
+      run: |
+        aws deploy create-deployment \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOY_GROUP_NAME }} \
+          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
