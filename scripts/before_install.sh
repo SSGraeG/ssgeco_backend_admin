@@ -1,14 +1,22 @@
 #!/bin/bash
 
-# Stop all existing gunicorn processes
-pkill gunicorn
+var=$(ps -ef | grep 'gunicorn' | grep -v 'grep')
+pid1=$(echo ${var} | cut -d " " -f2)
+pid2=$(echo ${var} | cut -d " " -f16)
+
+if [ -n "${pid1}" ] && [ -n "${pid2}" ];
+then
+    sudo kill -9 "${pid1}"
+    sudo kill -9 "${pid2}"
+    echo "${pid1} and ${pid2} are terminated."
+else
+    echo "gunicorn processes are not running."
+fi
 
 # Wait for existing processes to be terminated
 sleep 5
 
-# Remove old directories
 rm -rf /home/ubuntu/gunicorn.log
-rm -rf /home/ubuntu/ssgAdminBE
 
-# Create a new directory
-mkdir /home/ubuntu/ssgAdminBE
+rm -rf /home/ubuntu/ssgAdminBE
+mkdir  /home/ubuntu/ssgAdminBE
