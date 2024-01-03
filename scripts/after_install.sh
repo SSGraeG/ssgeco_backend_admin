@@ -20,4 +20,4 @@ touch /home/ubuntu/ssgAdminBE/log.txt
 sudo chown -R ubuntu:ubuntu /home/ubuntu/ssgAdminBE/
 
 echo ">>> start server ---------------------"
-gunicorn --bind 0.0.0.0:5000 app:app --timeout 90  > /dev/null 2> /home/ubuntu/gunicorn.log </dev/null &
+gunicorn --bind 0.0.0.0:5000 app:app --timeout 90 > /dev/null 2> /home/ubuntu/gunicorn.log </dev/null &
