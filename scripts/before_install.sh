@@ -1,20 +1,11 @@
-
 #!/bin/bash
 
-var=$(ps -ef | grep 'gunicorn' | grep -v 'grep')
-pid1=$(echo ${var} | cut -d " " -f2)
-pid2=$(echo ${var} | cut -d " " -f16)
+# 이전에 실행된 gunicorn 프로세스를 중지합니다.
+pkill -f 'gunicorn --bind 0.0.0.0:5000 --timeout 90 app:app'
 
-if [ -n "${pid1}" ] && [ -n "${pid2}" ];
-then
-    sudo kill -9 ${pid1}
-    sudo kill -9 ${pid2}
-    echo "${pid1} and ${pid2} are terminated."
-else
-    echo "gunicorn processes are not running."
-fi
-
+# 로그 파일과 프로젝트 디렉터리를 초기화합니다.
 rm -rf /home/ubuntu/gunicorn.log
-
 rm -rf /home/ubuntu/ssgAdminBE
 mkdir /home/ubuntu/ssgAdminBE
+
+cd /home/ubuntu/ssgAdminBE
