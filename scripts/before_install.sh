@@ -4,6 +4,7 @@ cd /home/ubuntu/ssgAdminBE
 
 echo ">>> pip install ----------------------"
 pip install -r requirements.txt
+pip install multidict
 echo ">>> change owner to ubuntu -----------"
 chown -R ubuntu /home/ubuntu/ssgAdminBE
 
