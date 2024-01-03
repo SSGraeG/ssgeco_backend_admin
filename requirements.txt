@@ -19,6 +19,9 @@ Flask-JWT-Extended==4.6.0
 flatbuffers==1.12
 frozenlist==1.2.0
 gast==0.5.3
+google-auth
+google-auth-oauthlib
+google-pasta
 grpcio==1.43.0
 gunicorn==21.2.0
 h5py==3.6.0
