@@ -20,4 +20,4 @@ touch /home/ubuntu/ssgAdminBE/log.txt
 sudo chown -R ubuntu:ubuntu /home/ubuntu/ssgAdminBE/
 
 echo ">>> start server ---------------------"
-nohup flask run --host=0.0.0.0 > log.txt 2>&1 &
+gunicorn --bind 0.0.0.0:5000 --timeout 90 "app:create_app()" > /dev/null 2> /home/ubuntu/gunicorn.log </dev/null &
