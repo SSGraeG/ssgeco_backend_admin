@@ -12,7 +12,3 @@ rm -rf /home/ubuntu/ssgAdminBE
 
 # Create a new directory
 mkdir /home/ubuntu/ssgAdminBE
-
-# Start a single gunicorn process
-cd /home/ubuntu/ssgAdminBE
-gunicorn -w 1 app:app
