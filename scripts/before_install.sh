@@ -14,5 +14,5 @@ rm -rf /home/ubuntu/ssgAdminBE
 mkdir /home/ubuntu/ssgAdminBE
 
 # Start a single gunicorn process
-cd /home/ubuntu/ssgAdminBE  # Replace with the actual path to your application
-gunicorn -w 1 app:app  # Replace with your gunicorn command
+cd /home/ubuntu/ssgAdminBE
+gunicorn -w 1 app:app
