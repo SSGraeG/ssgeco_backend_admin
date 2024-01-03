@@ -1,18 +1,18 @@
 #!/bin/bash
 
-var=$(ps -ef | grep 'gunicorn' | grep -v 'grep')
-pid1=$(echo "${var}" | awk '{print $2}')
-pid2=$(echo "${var}" | awk '{print $16}')
+# Stop all existing gunicorn processes
+pkill gunicorn
 
-if [ -n "${pid1}" -a -n "${pid2}" ];
-then
-    sudo kill -9 "${pid1}"
-    sudo kill -9 "${pid2}"
-    echo "${pid1}와 ${pid2}가 종료되었습니다."
-else
-    echo "gunicorn 프로세스가 실행되고 있지 않습니다."
-fi
+# Wait for existing processes to be terminated
+sleep 5
 
+# Remove old directories
 rm -rf /home/ubuntu/gunicorn.log
 rm -rf /home/ubuntu/ssgAdminBE
+
+# Create a new directory
 mkdir /home/ubuntu/ssgAdminBE
+
+# Start a single gunicorn process
+cd /home/ubuntu/ssgAdminBE  # Replace with the actual path to your application
+gunicorn -w 1 app:app  # Replace with your gunicorn command
