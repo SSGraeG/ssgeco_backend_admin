@@ -1,5 +1,14 @@
 #!/bin/bash
 
+cd /home/ubuntu/ssgAdminBE
+
+echo ">>> pip install ----------------------"
+pip install -r requirements.txt
+pip install flask-cors  # Install flask-cors explicitly
+
+echo ">>> change owner to ubuntu -----------"
+chown -R ubuntu /home/ubuntu/ssgAdminBE
+
 var=$(ps -ef | grep 'gunicorn' | grep -v 'grep')
 pid1=$(echo ${var} | cut -d " " -f2)
 pid2=$(echo ${var} | cut -d " " -f16)

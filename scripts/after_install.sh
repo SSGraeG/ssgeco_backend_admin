@@ -1,13 +1,6 @@
 #!/bin/bash
 
-cd /home/ubuntu/ssgAdminBE
 
-echo ">>> pip install ----------------------"
-pip install -r requirements.txt
-pip install flask-cors  # Install flask-cors explicitly
-
-echo ">>> change owner to ubuntu -----------"
-chown -R ubuntu /home/ubuntu/ssgAdminBE
 
 cd /home/ubuntu/ssgAdminBE
 
