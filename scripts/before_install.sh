@@ -3,27 +3,17 @@
 cd /home/ubuntu/ssgAdminBE
 
 echo ">>> pip install ----------------------"
-pip install -r /home/ubuntu/ssgAdminBE/requirements.txt
+pip install -r requirements.txt
 echo ">>> change owner to ubuntu -----------"
 chown -R ubuntu /home/ubuntu/ssgAdminBE
 
-var=$(ps -ef | grep 'gunicorn' | grep -v 'grep')
-pid1=$(echo ${var} | cut -d " " -f2)
-pid2=$(echo ${var} | cut -d " " -f16)
-
-if [ -n "${pid1}" ] && [ -n "${pid2}" ];
-then
-    sudo kill -9 "${pid1}"
-    sudo kill -9 "${pid2}"
-    echo "${pid1} and ${pid2} are terminated."
-else
-    echo "gunicorn processes are not running."
-fi
+# 기존에 실행 중인 gunicorn 프로세스를 종료합니다.
+pkill gunicorn
 
 # Wait for existing processes to be terminated
 sleep 5
 
+# 로그 파일과 프로젝트 디렉터리를 초기화합니다.
 rm -rf /home/ubuntu/gunicorn.log
-
 rm -rf /home/ubuntu/ssgAdminBE
-mkdir  /home/ubuntu/ssgAdminBE
+mkdir /home/ubuntu/ssgAdminBE
