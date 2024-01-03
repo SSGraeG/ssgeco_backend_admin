@@ -31,6 +31,10 @@ def main():
     keyword = request.args.get('keyword')
     return database.getItems(sort, keyword)
 
+@app.route('/test')
+def test():
+    return "test"
+
 @app.before_request
 def before_request():
     # 요청이 들어올 때마다 헤더에서 'Company-ID'를 읽어서 g 객체에 저장
