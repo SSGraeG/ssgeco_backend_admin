@@ -6,7 +6,7 @@ import os
 
 # 데이터베이스 연결 설정
 connectionString = {
-    'host': 'eco-rds.cykey8vytdto.ap-northeast-2.rds.amazonaws.com',
+    'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',
     'port': 3306,
     'database': 'eco',
     'user': 'admin',
