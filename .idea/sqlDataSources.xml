@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="5deb1d7e-2b0b-4641-a742-6281b0ff8a35" name="eco_japanRDS Mapping">
+      <data-sources db="2c3e86a0-4326-49bb-be54-2350c775f416" />
+      <scope>
+        <node kind="database" negative="1" />
+      </scope>
+    </mapping>
+  </component>
+</project>
