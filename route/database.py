@@ -9,7 +9,7 @@ connectionString = {
     'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',
     'port': 3306,
     'database': 'eco',
-    'user': 'admin',
+    'user': 'ububtu',
     'password': 'password',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor
