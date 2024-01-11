@@ -41,8 +41,6 @@ def getItems(sort, keyword):
         return jsonify({"message": "고객 데이터를 가져오는 중 오류가 발생했습니다."}), 500
 
 
-
-
 # 테이블 생성 쿼리 파일 경로
 queries_file_path = os.path.join(os.path.dirname(__file__), 'queries.sql')
 # queries.sql 파일을 읽어와 쿼리를 문자열로 저장
