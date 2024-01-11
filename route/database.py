@@ -4,43 +4,32 @@ import os
 
 from flask import jsonify
 from pymysql import connect
+from sshtunnel import SSHTunnelForwarder
+
+current_directory = os.path.dirname(os.path.realpath(__file__))
+ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
+# SSH 터널 설정
+ssh_tunnel = SSHTunnelForwarder(
+    ('18.179.20.115', 22),
+    ssh_username='ubuntu',
+    ssh_password='password',
+    ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
+    remote_bind_address=('eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com', 3306)
+)
+
+# SSH 터널 시작
+ssh_tunnel.start()
 
 # 데이터베이스 연결 설정
 connectionString = {
-    'host': 'eco-rds.cykey8vytdto.ap-northeast-2.rds.amazonaws.com',
-    'port': 3306,  # 예시 포트, 실제 포트에 맞게 수정
-    'database': 'eco',
+    'host': '127.0.0.1',  # localhost로 변경
+    'port': ssh_tunnel.local_bind_port,
     'user': 'admin',
-    'password': 'password',
+    'password': 'password',  # 실제 데이터베이스 암호로 변경
+    'database': 'eco',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor
 }
-
-def getItems(sort, keyword):
-    try:
-        # 기본 정렬 열을 설정 (실제 테이블의 컬럼으로 설정)
-        default_sort = 'usernum'
-
-        # sort 값이 None이면 기본 정렬 열로 설정
-        sort = sort or default_sort
-
-        # keyword 값이 None이면 빈 문자열로 설정
-        keyword = keyword or ''
-
-        with connect(**connectionString) as con:
-            cursor = con.cursor()
-            # 예시 쿼리 (실제 데이터베이스 쿼리에 맞게 수정해야 함)
-            sql = f"SELECT * FROM eco.customer WHERE eco.customer.usersnum = '{keyword}' ORDER BY {sort};"
-            cursor.execute(sql)
-            result = cursor.fetchall()
-
-            return jsonify({'data': result})
-
-    except Exception as e:
-        print(f"Error in getItems: {e}")
-        return jsonify({"message": "고객 데이터를 가져오는 중 오류가 발생했습니다."}), 500
-
-
 # 테이블 생성 쿼리 파일 경로
 queries_file_path = os.path.join(os.path.dirname(__file__), 'queries.sql')
 # queries.sql 파일을 읽어와 쿼리를 문자열로 저장
