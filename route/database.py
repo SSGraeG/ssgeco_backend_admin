@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 import pymysql
-from flask import jsonify
-from pymysql import connect
 import os
 
 from flask import jsonify
@@ -10,29 +8,13 @@ from pymysql import connect
 # 데이터베이스 연결 설정
 connectionString = {
     'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',
-    'port': 3306,  # 예시 포트, 실제 포트에 맞게 수정
+    'port': 3306,
     'database': 'eco',
-    'user': 'ubuntu',
+    'user': 'admin',
     'password': 'password',
     'charset': 'utf8',
     'cursorclass': pymysql.cursors.DictCursor
 }
-
-def getItems(sort, keyword):
-    try:
-        with connect(**connectionString) as con:
-            cursor = con.cursor()
-            # 예시 쿼리 (실제 데이터베이스 쿼리에 맞게 수정해야 함)
-            sql = f"SELECT * FROM customer WHERE usersnum = '{keyword}' ORDER BY {sort};"
-            cursor.execute(sql)
-            result = cursor.fetchall()
-
-            return jsonify({'data': result})
-
-    except Exception as e:
-        print(f"Error in getItems: {e}")
-        return jsonify({"message": "고객 데이터를 가져오는 중 오류가 발생했습니다."}), 500
-
 
 
 # 테이블 생성 쿼리 파일 경로
