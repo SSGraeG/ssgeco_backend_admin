@@ -29,7 +29,7 @@ app.register_blueprint(chart_bp)
 def main():
     sort = request.args.get('sort')
     keyword = request.args.get('keyword')
-    return database.getItems(sort, keyword)
+    return database.get_customer_data()
 
 @app.before_request
 def before_request():
