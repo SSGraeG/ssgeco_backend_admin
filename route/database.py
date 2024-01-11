@@ -24,10 +24,13 @@ def getItems(sort, keyword):
         # sort 값이 None이면 기본 정렬 열로 설정
         sort = sort or default_sort
 
+        # keyword 값이 None이면 빈 문자열로 설정
+        keyword = keyword or ''
+
         with connect(**connectionString) as con:
             cursor = con.cursor()
             # 예시 쿼리 (실제 데이터베이스 쿼리에 맞게 수정해야 함)
-            sql = f"SELECT * FROM customer WHERE usersnum = {keyword} ORDER BY {sort};"
+            sql = f"SELECT * FROM eco.customer WHERE eco.customer.usersnum = '{keyword}' ORDER BY {sort};"
             cursor.execute(sql)
             result = cursor.fetchall()
 
@@ -36,6 +39,7 @@ def getItems(sort, keyword):
     except Exception as e:
         print(f"Error in getItems: {e}")
         return jsonify({"message": "고객 데이터를 가져오는 중 오류가 발생했습니다."}), 500
+
 
 
 
