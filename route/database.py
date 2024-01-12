@@ -10,7 +10,7 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
 # SSH 터널 설정
 ssh_tunnel = SSHTunnelForwarder(
-    ('18.179.20.115', 22),
+    ('13.112.207.146', 22),
     ssh_username='ubuntu',
     ssh_password='password',
     ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
@@ -138,4 +138,3 @@ def get_user_info_and_company_id_and_role(user_id, pwd):
     except Exception as e:
         print(f"Error in get_user_info_and_company_id_and_role: {e}")
         return None, None, None
-
