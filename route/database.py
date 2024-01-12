@@ -22,7 +22,7 @@ ssh_tunnel.start()
 
 # 데이터베이스 연결 설정
 connectionString = {
-    'host': '127.0.0.1',  # localhost로 변경
+    'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',  # localhost로 변경
     'port': ssh_tunnel.local_bind_port,
     'user': 'admin',
     'password': 'password',  # 실제 데이터베이스 암호로 변경
