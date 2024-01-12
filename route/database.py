@@ -16,7 +16,6 @@ ssh_tunnel = SSHTunnelForwarder(
     ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
     remote_bind_address=('eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com', 3306)
 )
-
 # SSH 터널 시작
 ssh_tunnel.start()
 
