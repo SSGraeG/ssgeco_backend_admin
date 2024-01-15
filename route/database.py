@@ -10,7 +10,7 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
 # SSH 터널 설정
 ssh_tunnel = SSHTunnelForwarder(
-    ('13.112.207.146', 22),
+    ('52.194.227.65', 22),
     ssh_username='ubuntu',
     ssh_password='password',
     ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
