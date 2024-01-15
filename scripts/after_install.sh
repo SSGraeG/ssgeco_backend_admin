@@ -8,6 +8,8 @@ pip install multidict
 echo ">>> change owner to ubuntu -----------"
 chown -R ubuntu /home/ubuntu/ssgAdminBE
 
+pip install sshtunnel
+
 cd /home/ubuntu/ssgAdminBE
 
 touch /home/ubuntu/ssgAdminBE/log.txt
