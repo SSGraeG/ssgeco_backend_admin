@@ -6,24 +6,25 @@ from flask import jsonify
 from pymysql import connect
 from sshtunnel import SSHTunnelForwarder
 
-current_directory = os.path.dirname(os.path.realpath(__file__))
-ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
-# SSH 터널 설정
-ssh_tunnel = SSHTunnelForwarder(
-    ('52.194.227.65', 22),
-    ssh_username='ubuntu',
-    ssh_password='password',
-    ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
-    remote_bind_address=('eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com', 3306)
-)
-# SSH 터널 시작
-ssh_tunnel.start()
+# current_directory = os.path.dirname(os.path.realpath(__file__))
+# ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
+# # SSH 터널 설정
+# ssh_tunnel = SSHTunnelForwarder(
+#     ('52.194.227.65', 22),
+#     ssh_username='ubuntu',
+#     ssh_password='password',
+#     ssh_pkey=ssh_pkey,  # 실제 개인 키 경로로 교체
+#     remote_bind_address=('eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com', 3306)
+# )
+# # SSH 터널 시작
+# ssh_tunnel.start()
 
 
 # 데이터베이스 연결 설정
 connectionString = {
     'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',  # localhost로 변경
-    'port': ssh_tunnel.local_bind_port,
+    # 'port': ssh_tunnel.local_bind_port,
+    'port' : 3306,
     'user': 'admin',
     'password': 'password',  # 실제 데이터베이스 암호로 변경
     'database': 'eco',
