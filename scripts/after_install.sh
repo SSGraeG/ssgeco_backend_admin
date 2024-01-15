@@ -13,14 +13,12 @@ pip install multidict
 
 cd /home/ubuntu/ssgAdminBE
 
-
 touch /home/ubuntu/ssgAdminBE/log.txt
 
 # 로그 파일의 소유자 변경
-touch /home/ubuntu/gunicorn.log
-sudo chown ubuntu:ubuntu /home/ubuntu/gunicorn.log
-
+touch /home/ubuntu/flasktest.log
+sudo chown ubuntu:ubuntu /home/ubuntu/flasktest.log
 
 echo ">>> start server ---------------------"
-# 권한 설정을 추가하고, 로그 파일을 기록 가능하도록 수정
-gunicorn --bind 0.0.0.0:5000 --timeout 90 app:app > /dev/null 2> /home/ubuntu/gunicorn.log </dev/null &
+# Flask 내장 서버로 실행 (실제 운영에서는 Gunicorn 권장)
+flask run --host=0.0.0.0 --port=5000 > /dev/null 2> /home/ubuntu/flasktest.log </dev/null &
