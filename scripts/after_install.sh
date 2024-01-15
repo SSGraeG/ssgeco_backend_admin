@@ -13,6 +13,7 @@ pip install multidict
 
 cd /home/ubuntu/ssgAdminBE
 
+
 touch /home/ubuntu/ssgAdminBE/log.txt
 
 # 로그 파일의 소유자 변경
