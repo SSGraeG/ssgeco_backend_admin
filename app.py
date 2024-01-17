@@ -32,7 +32,6 @@ def main():
     return database.get_customer_data()
 
 
-
 @app.before_request
 def before_request():
     # 요청이 들어올 때마다 헤더에서 'Company-ID'를 읽어서 g 객체에 저장
