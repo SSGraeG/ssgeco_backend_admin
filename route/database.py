@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta
-import pymysql
 import os
-
+import pymysql
+from datetime import datetime, timedelta
 from flask import jsonify
 from pymysql import connect
-from sshtunnel import SSHTunnelForwarder
 
 # current_directory = os.path.dirname(os.path.realpath(__file__))
 # ssh_pkey = os.path.join(current_directory, 'adminBE.pem')
