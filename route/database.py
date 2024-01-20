@@ -20,9 +20,10 @@ from pymysql import connect
 
 # 데이터베이스 연결 설정
 connectionString = {
-    'host': 'eco-rds.chjhms6dyeyt.ap-northeast-1.rds.amazonaws.com',  # localhost로 변경
+    ### Seoul
+    'host': 'eco-rds.cykey8vytdto.ap-northeast-2.rds.amazonaws.com',
     # 'port': ssh_tunnel.local_bind_port,
-    'port' : 3306,
+    'port': 3306,
     'user': 'admin',
     'password': 'password',  # 실제 데이터베이스 암호로 변경
     'database': 'eco',
