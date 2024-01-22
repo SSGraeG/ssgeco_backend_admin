@@ -5,9 +5,9 @@ from . import database
 
 user_bp = Blueprint('user', __name__)
 
-@user_bp.route('/')
+@user_bp.route('/test')
 def test_route():
-    return jsonify({'test': 'V2'}), 200
+    return jsonify({'test': 'V1'}), 200
 
 @user_bp.route('/login', methods=["POST"])
 def login():

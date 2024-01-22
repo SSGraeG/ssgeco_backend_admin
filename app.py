@@ -36,7 +36,7 @@ def main():
 def before_request():
     # 요청이 들어올 때마다 헤더에서 'Company-ID'를 읽어서 g 객체에 저장
     g.company_id = request.headers.get('Company-ID')
-# g.company_id가 None이면 오류를 방지하기 위해 기본값으로 설정
+    # g.company_id가 None이면 오류를 방지하기 위해 기본값으로 설정
     if g.company_id is None:
         g.company_id = '69'
 
