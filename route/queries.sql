@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`email`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
+
 -- Table `mileage_category` in `eco` database
 CREATE TABLE IF NOT EXISTS `mileage_category` (
   `id` INT NOT NULL AUTO_INCREMENT,
