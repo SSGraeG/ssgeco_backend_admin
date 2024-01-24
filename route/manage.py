@@ -156,8 +156,10 @@ def manage_coupons():
 @manage_bp.route('/company/user/mileage', methods=['GET'])
 def get_mileage_data():
     try:
-        # 클라이언트에서 보낸 Company-ID를 헤더에서 읽어옴
+        # 클라이언트에서 보낸 Company-ID와 페이지 정보를 헤더에서 읽어옴
         company_id = request.headers.get('Company-ID')
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 10))
 
         # Company-ID가 None이면 디폴트 값으로 설정
         if company_id is None:
@@ -170,9 +172,9 @@ def get_mileage_data():
             user_schema = f"company_{company_id}"
             cursor.execute(f"USE {user_schema};")
 
-            # 마일리지 정보 조회 쿼리 (적절한 SQL 쿼리를 사용하여 마일리지 데이터를 가져와야 함)
-            # 예시로 아래와 같이 조회하는 쿼리를 사용하겠습니다.
-            sql = "SELECT * FROM mileage_tracking;"
+            # 마일리지 정보 조회 쿼리 (페이징 처리)
+            offset = (page - 1) * page_size
+            sql = f"SELECT * FROM mileage_tracking LIMIT {offset}, {page_size};"
             cursor.execute(sql)
             mileage_data = cursor.fetchall()
 
