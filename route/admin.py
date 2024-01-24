@@ -87,21 +87,32 @@ def admin_page2():
         print("Error fetching user data:", e)
         return jsonify({"message": "Error fetching user data"}), 500
 
+
 @admin_bp.route('/rowadmin', methods=['GET'])
 def rowadmin_page():
     try:
         with pymysql.connect(**database.connectionString) as con:
             cursor = con.cursor()
+
             # 현재 사용자의 스키마로 전환
             user_schema = f"company_{g.company_id}"
             cursor.execute(f"USE {user_schema};")
+
             # 사용자 정보 조회 쿼리
-            sql = "SELECT * FROM user;"
-            cursor.execute(sql)
+            sql_user = "SELECT * FROM user;"
+            cursor.execute(sql_user)
             user_data = cursor.fetchall()
 
-            return jsonify({'users': user_data})
+            # 마일리지 추적 정보 조회 쿼리
+            sql_mileage_tracking = """
+                SELECT * FROM mileage_tracking
+                INNER JOIN mileage_category ON mileage_tracking.mileage_category_id = mileage_category.id;
+            """
+            cursor.execute(sql_mileage_tracking)
+            mileage_tracking_data = cursor.fetchall()
+
+            return jsonify({'users': user_data, 'mileage_tracking': mileage_tracking_data})
 
     except Exception as e:
-        print("Error fetching user data:", e)
-        return jsonify({"message": "Error fetching user data"}), 500
+        print("Error fetching user and mileage tracking data:", e)
+        return jsonify({"message": "Error fetching user and mileage tracking data"}), 500
