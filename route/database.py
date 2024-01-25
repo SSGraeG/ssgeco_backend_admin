@@ -134,10 +134,10 @@ def get_user_info_and_company_id_and_role_and_subscription_status(user_id, pwd):
                 }
                 company_id = result['company_id']
                 role = result['role']
-                return user_info, company_id, role
+                return user_info, company_id, role, result['subscription_status']
 
-            return None, None, None
+            return None, None, None, None
 
     except Exception as e:
         print(f"Error in get_user_info_and_company_id_and_role_and_subscription_status: {e}")
-        return None, None, None
+        return None, None, None, None
