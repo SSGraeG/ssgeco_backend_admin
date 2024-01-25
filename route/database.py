@@ -135,7 +135,7 @@ def get_user_info_and_company_id_and_role(user_id, pwd):
                 }
                 company_id = result['company_id']
                 role = result['role']
-                return user_info, company_id, role, result['subscription_status'], result['infraCategory ']
+                return user_info, company_id, role, result['subscription_status'], result['infraCategory']
 
             return None, None, None, None, None
 
