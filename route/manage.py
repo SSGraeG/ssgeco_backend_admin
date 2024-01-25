@@ -54,14 +54,20 @@ def delete_coupon(coupon_id):
             cursor = con.cursor()
             user_schema = f"company_{g.company_id}"
             cursor.execute(f"USE {user_schema};")
-            sql = "DELETE FROM mileage_category WHERE id = %s;"
-            cursor.execute(sql, (coupon_id,))
+
+            # 관련 레코드를 mileage_tracking 테이블에서 삭제
+            sql_delete_tracking = "DELETE FROM mileage_tracking WHERE mileage_category_id = %s;"
+            cursor.execute(sql_delete_tracking, (coupon_id,))
+
+            # 쿠폰 삭제
+            sql_delete_coupon = "DELETE FROM mileage_category WHERE id = %s;"
+            cursor.execute(sql_delete_coupon, (coupon_id,))
+
             con.commit()
             return jsonify({"message": f"Coupon {coupon_id} deleted successfully"}), 200
     except Exception as e:
         print("Error deleting coupon:", e)
         return jsonify({"message": "Error deleting coupon"}), 500
-
 
 @manage_bp.route('/api/getCompanyName/<company_id>', methods=['GET'])
 def get_company_name(company_id):
