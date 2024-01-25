@@ -98,6 +98,7 @@ def rowadmin_page():
             user_schema = f"company_{g.company_id}"
             cursor.execute(f"USE {user_schema};")
 
+
             # 사용자 정보 조회 쿼리
             sql_user = "SELECT * FROM user;"
             cursor.execute(sql_user)
