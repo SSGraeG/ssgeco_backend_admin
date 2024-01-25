@@ -21,8 +21,8 @@ def get_user_info_and_company_id_and_role():
             user_schema = f"company_{company_id}"
             cursor.execute(f"USE {user_schema};")
 
-            # 사용자 정보 조회 쿼리
-            sql = "SELECT id, name, email, address FROM user;"  # 주소 전체를 가져오도록 수정
+            # 사용자 정보 조회 쿼리 (주소를 왼쪽 두 글자만 가져오도록 수정)
+            sql = "SELECT id, name, email, LEFT(address, 2) AS address FROM user;"
             cursor.execute(sql)
             user_data = cursor.fetchall()
 
@@ -31,7 +31,6 @@ def get_user_info_and_company_id_and_role():
     except Exception as e:
         print("Error fetching user data:", e)
         return jsonify({"message": "Error fetching user data"}), 500
-
 @manage_bp.route('/company/user/<email>', methods=['DELETE'])
 def delete_user(email):
     try:
