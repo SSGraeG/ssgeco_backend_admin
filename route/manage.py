@@ -22,7 +22,7 @@ def get_user_info_and_company_id_and_role():
             cursor.execute(f"USE {user_schema};")
 
             # 사용자 정보 조회 쿼리
-            sql = "SELECT * FROM user;"
+            sql = "SELECT id, name, email, LEFT(address, 2) AS city FROM user;"  # 주소의 앞 두 글자를 추출
             cursor.execute(sql)
             user_data = cursor.fetchall()
 
