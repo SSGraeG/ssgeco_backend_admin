@@ -22,15 +22,21 @@ def get_user_info_and_company_id_and_role():
             cursor.execute(f"USE {user_schema};")
 
             # 사용자 정보 조회 쿼리 (주소를 왼쪽 두 글자만 가져오도록 수정)
-            sql = "SELECT id, name, email, LEFT(address, 2) AS address FROM user;"
+            sql = "SELECT email, name, LEFT(address, 2) AS address FROM user;"
             cursor.execute(sql)
             user_data = cursor.fetchall()
+
+            # 사용자 정보에 회사 이름 추가
+            company_name = get_company_name(company_id)
+            for user in user_data:
+                user['company_name'] = company_name
 
             return jsonify({'users': user_data})
 
     except Exception as e:
         print("Error fetching user data:", e)
         return jsonify({"message": "Error fetching user data"}), 500
+
 @manage_bp.route('/company/user/<email>', methods=['DELETE'])
 def delete_user(email):
     try:
@@ -45,7 +51,6 @@ def delete_user(email):
     except Exception as e:
         print("Error deleting user:", e)
         return jsonify({"message": "Error deleting user"}), 500
-
 
 @manage_bp.route('/company/user/coupon/<coupon_id>', methods=['DELETE'])
 def delete_coupon(coupon_id):
@@ -80,14 +85,13 @@ def get_company_name(company_id):
 
             if result:
                 company_name = result['company_name']
-                return jsonify({'company_name': company_name})
+                return company_name
             else:
-                return jsonify({"message": "Company name not found"}), 404
+                return "Company name not found"
 
     except Exception as e:
         print(f"Error in get_company_name: {e}")
-        return jsonify({"message": "Error fetching company name"}), 500
-
+        return "Error fetching company name"
 
 @manage_bp.route('/company/user/coupon', methods=['GET', 'POST'])
 def manage_coupons():
