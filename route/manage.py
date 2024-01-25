@@ -22,7 +22,7 @@ def get_user_info_and_company_id_and_role():
             cursor.execute(f"USE {user_schema};")
 
             # 사용자 정보 조회 쿼리
-            sql = "SELECT id, name, email, LEFT(address, 2) AS city FROM user;"  # 주소의 앞 두 글자를 추출
+            sql = "SELECT id, name, email, address FROM user;"  # 주소 전체를 가져오도록 수정
             cursor.execute(sql)
             user_data = cursor.fetchall()
 
@@ -46,6 +46,7 @@ def delete_user(email):
     except Exception as e:
         print("Error deleting user:", e)
         return jsonify({"message": "Error deleting user"}), 500
+
 
 @manage_bp.route('/company/user/coupon/<coupon_id>', methods=['DELETE'])
 def delete_coupon(coupon_id):
