@@ -15,7 +15,7 @@ def login():
         userId = request.json.get('email')
         password = request.json.get('password')
 
-        user_info, company_id, role = database.get_user_info_and_company_id_and_role(userId, password)
+        user_info, company_id, role, subscription_status = database.get_user_info_and_company_id_and_role(userId, password)
 
         if user_info and company_id:
             with pymysql.connect(**database.connectionString) as con:
@@ -23,12 +23,13 @@ def login():
                 schema_name = f"company_{company_id}"
                 cursor.execute(f"USE {schema_name};")
 
-            # 응답에 'company_id'와 'role' 포함
+            # 응답에 'company_id', 'role', 'subscription_status'를 포함
             response = {
                 'token': create_access_token(identity=userId),
                 'userId': userId,
                 'company_id': company_id,
-                'role': role
+                'role': role,
+                'subscription_status': subscription_status  # 추가
             }
 
             # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
