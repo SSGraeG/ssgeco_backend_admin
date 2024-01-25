@@ -7,7 +7,6 @@ chart_bp = Blueprint('chart', __name__)
 def get_customer_data():
     return database.get_customer_data()
 
-
 @chart_bp.route('/api/getChartData/<usernum>', methods=['GET'])
 def get_chart_data(usernum):
     # 여기에서 usernum을 기반으로 차트 데이터를 가져와서 응답합니다.
