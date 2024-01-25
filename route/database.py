@@ -123,21 +123,22 @@ def get_user_info_and_company_id_and_role_and_subscription_status(user_id, pwd):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
-            sql = "SELECT email, company_id, role, subscription_status FROM customer WHERE email = %s AND password = %s;"
+            sql = "SELECT email, company_id, role, subscription_status, infraCategory  FROM customer WHERE email = %s AND password = %s;"
             cursor.execute(sql, [user_id, pwd])
             result = cursor.fetchone()
 
             if result:
                 user_info = {
                     'email': result['email'],
-                    'subscription_status': result['subscription_status']
+                    'subscription_status': result['subscription_status'],
+                    'infraCategory' : result['infraCategory ']
                 }
                 company_id = result['company_id']
                 role = result['role']
-                return user_info, company_id, role, result['subscription_status']
+                return user_info, company_id, role, result['subscription_status'], result['infraCategory ']
 
-            return None, None, None, None
+            return None, None, None, None, None
 
     except Exception as e:
         print(f"Error in get_user_info_and_company_id_and_role_and_subscription_status: {e}")
-        return None, None, None, None
+        return None, None, None, None, None

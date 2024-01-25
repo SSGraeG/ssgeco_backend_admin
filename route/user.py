@@ -15,8 +15,7 @@ def login():
         userId = request.json.get('email')
         password = request.json.get('password')
 
-        # 여기서 함수 호출을 변경
-        user_info, company_id, role, subscription_status = database.get_user_info_and_company_id_and_role_and_subscription_status(userId, password)
+        user_info, company_id, role, subscription_status, infraCategory  = database.get_user_info_and_company_id_and_role(userId, password)
 
         if user_info and company_id:
             with pymysql.connect(**database.connectionString) as con:
@@ -30,7 +29,8 @@ def login():
                 'userId': userId,
                 'company_id': company_id,
                 'role': role,
-                'subscription_status': subscription_status  # 추가
+                'subscription_status': subscription_status,  # 추가
+                'infraCategory' : infraCategory
             }
 
             # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
