@@ -15,7 +15,7 @@ def login():
         userId = request.json.get('email')
         password = request.json.get('password')
 
-        user_info, company_id, role, subscription_status, infraCategory  = database.get_user_info_and_company_id_and_role(userId, password)
+        user_info, company_id, role, subscription_status, infraCategory = database.get_user_info_and_company_id_and_role(userId, password)
 
         if user_info and company_id:
             with pymysql.connect(**database.connectionString) as con:

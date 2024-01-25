@@ -123,7 +123,7 @@ def get_user_info_and_company_id_and_role(user_id, pwd):
     try:
         with connect(**connectionString) as con:
             cursor = con.cursor()
-            sql = "SELECT email, company_id, role, subscription_status, infraCategory  FROM customer WHERE email = %s AND password = %s;"
+            sql = "SELECT email, company_id, role, subscription_status,infraCategory FROM customer WHERE email = %s AND password = %s;"
             cursor.execute(sql, [user_id, pwd])
             result = cursor.fetchone()
 
@@ -131,7 +131,7 @@ def get_user_info_and_company_id_and_role(user_id, pwd):
                 user_info = {
                     'email': result['email'],
                     'subscription_status': result['subscription_status'],
-                    'infraCategory' : result['infraCategory ']
+                    'infraCategory' : result['infraCategory']
                 }
                 company_id = result['company_id']
                 role = result['role']
