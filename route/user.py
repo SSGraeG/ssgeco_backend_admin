@@ -7,7 +7,7 @@ user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/test')
 def test_route():
-    return jsonify({'test': 'good'}), 200
+    return jsonify({'test': 'succeed'}), 200
 
 @user_bp.route('/login', methods=["POST"])
 def login():
