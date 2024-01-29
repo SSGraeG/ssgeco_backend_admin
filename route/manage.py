@@ -37,6 +37,7 @@ def get_user_info_and_company_id_and_role():
         print("Error fetching user data:", e)
         return jsonify({"message": "Error fetching user data"}), 500
 
+
 @manage_bp.route('/company/user/<email>', methods=['DELETE'])
 def delete_user(email):
     try:
