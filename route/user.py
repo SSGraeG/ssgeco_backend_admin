@@ -11,7 +11,44 @@ user_bp = Blueprint('user', __name__)
 def test_route():
     return jsonify({'test': 'succeed'}), 200
 
+@user_bp.route('/login', methods=["POST"])
+def login():
+    try:
+        if request.method == 'POST':
+            userId = request.json.get('email')
+            password = request.json.get('password')
 
+            user_info, company_id, role, subscription_status, infraCategory = database.get_user_info_and_company_id_and_role(userId, password)
+
+            if user_info and company_id:
+                with pymysql.connect(**database.connectionString) as con:
+                    cursor = con.cursor()
+                    schema_name = f"company_{company_id}"
+                    cursor.execute(f"USE {schema_name};")
+
+                # 응답에 'company_id', 'role', 'subscription_status'를 포함
+                response = {
+                    'token': create_access_token(identity=userId),
+                    'userId': userId,
+                    'company_id': company_id,
+                    'role': role,
+                    'subscription_status': subscription_status,
+                    'infraCategory': infraCategory
+                }
+
+                # role이 1이면 /admin에 대한 접근 권한을 확인하도록 설정
+                if role == 1:
+                    response['can_access_admin'] = True
+                    response['can_access_admin2'] = True
+                else:
+                    response['can_access_admin'] = False
+                    response['can_access_admin2'] = False
+                return jsonify(response), 200
+            return jsonify({'message': '잘못된 로그인 정보입니다. 다시 입력해주세요.'}), 401
+
+    except Exception as e:
+        print(f"Error in login: {e}")
+        return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
 @user_bp.route('/login/signup', methods=['POST'])
 def signup():
     try:
