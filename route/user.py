@@ -78,7 +78,7 @@ def signup():
 
         # Terraform 파일을 적용
         terraform_dir = '/home/ubuntu'  # Terraform이 실행될 디렉토리
-        terraform_file = 'new-user.tf'  # Terraform 구성 파일명
+        terraform_file = 'new-vpc.tf'  # Terraform 구성 파일명
 
         # new-vpc.tf 파일이 존재하는지 확인
         if os.path.exists(os.path.join(terraform_dir, terraform_file)):
@@ -86,14 +86,10 @@ def signup():
             subprocess.run("terraform init -auto-approve", shell=True, cwd=terraform_dir)
 
             # Terraform apply 명령 실행
-            terraform_apply_result = subprocess.run("terraform apply -auto-approve", shell=True, cwd=terraform_dir)
+            subprocess.run("terraform apply -auto-approve", shell=True, cwd=terraform_dir)
 
-            # Terraform apply가 성공적으로 실행되었을 때만 회원가입 성공 메시지 전송
-            if terraform_apply_result.returncode == 0:
-                return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
-                    'Content-Type': 'application/json'}
-            else:
-                return jsonify({"message": "Terraform apply 중 에러가 발생하였습니다."}), 500, {'Content-Type': 'application/json'}
+            return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
+                'Content-Type': 'application/json'}
         else:
             return jsonify({"message": "Terraform 구성 파일이 존재하지 않습니다."}), 500, {'Content-Type': 'application/json'}
 
