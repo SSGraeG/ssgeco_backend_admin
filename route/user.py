@@ -72,7 +72,7 @@ def signup():
 
         # 회원가입 성공 후 AWS CLI 명령 실행
         aws_command = "terraform apply -auto-approve"
-        subprocess.run(aws_command, shell=True, cwd='path/to/terraform/directory')
+        subprocess.run(aws_command, shell=True, cwd='./')
 
         return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
             'Content-Type': 'application/json'}
