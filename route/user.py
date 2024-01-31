@@ -76,9 +76,8 @@ def signup():
         access_token = create_access_token(identity=userId)
         print(f"Generated access token: {access_token}")
 
-        # 회원가입 성공 메시지 전송
-        success_message = {"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}
-        return jsonify(success_message), 200, {'Content-Type': 'application/json'}
+        return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
+            'Content-Type': 'application/json'}
 
         # Terraform 파일을 적용
         terraform_dir = '/home/ubuntu'  # Terraform이 실행될 디렉토리
@@ -92,15 +91,14 @@ def signup():
             # Terraform apply 명령 실행
             terraform_apply_result = subprocess.run("terraform apply -auto-approve", shell=True, cwd=terraform_dir)
 
-            # Terraform apply가 성공적으로 실행되었을 때만 추가 메시지 전송
-            if terraform_apply_result.returncode == 0:
-                additional_message = {"message": "Terraform apply 성공"}
-            else:
-                additional_message = {"message": "Terraform apply 중 에러가 발생하였습니다."}
+            # Terraform apply가 성공적으로 실행되었을 때만 회원가입 성공 메시지 전송
+            # if terraform_apply_result.returncode == 0:
+            #     return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
+            #         'Content-Type': 'application/json'}
+            # else:
+            #     return jsonify({"message": "Terraform apply 중 에러가 발생하였습니다."}), 500, {'Content-Type': 'application/json'}
         else:
-            additional_message = {"message": "Terraform 구성 파일이 존재하지 않습니다."}
-
-        return jsonify(additional_message), 200, {'Content-Type': 'application/json'}
+            return jsonify({"message": "Terraform 구성 파일이 존재하지 않습니다."}), 500, {'Content-Type': 'application/json'}
 
     except Exception as e:
         print(f"Error in signup: {e}")
