@@ -2,6 +2,7 @@ import pymysql
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 from . import database
+import subprocess
 
 user_bp = Blueprint('user', __name__)
 
@@ -69,8 +70,13 @@ def signup():
         access_token = create_access_token(identity=userId)
         print(f"Generated access token: {access_token}")
 
+        # 회원가입 성공 후 AWS CLI 명령 실행
+        aws_command = "terraform apply -auto-approve"
+        subprocess.run(aws_command, shell=True, cwd='path/to/terraform/directory')
+
         return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
             'Content-Type': 'application/json'}
+
     except Exception as e:
         print(f"Error in signup: {e}")
         return jsonify({"message": "요청중 에러가 발생"}), 500, {'Content-Type': 'application/json'}
