@@ -71,9 +71,19 @@ def signup():
         print(f"Generated access token: {access_token}")
 
         # 회원가입 성공 후 AWS CLI 명령 실행
-        aws_command = "terraform apply -auto-approve"
-        subprocess.run(aws_command, shell=True, cwd='./')
+        aws_init_command = "terraform init -auto-approve"
+        aws_plan_command = "terraform plan -auto-approve"
+        aws_apply_command = "terraform apply -auto-approve"
 
+        # terraform init 명령 실행
+        subprocess.run(aws_init_command, shell=True, cwd='./path/to/terraform/directory')
+        print(f"1")
+        # terraform plan 명령 실행
+        subprocess.run(aws_plan_command, shell=True, cwd='./path/to/terraform/directory')
+        print(f"2")
+        # terraform apply 명령 실행
+        subprocess.run(aws_apply_command, shell=True, cwd='./path/to/terraform/directory')
+        print(f"3")
         return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
             'Content-Type': 'application/json'}
 
