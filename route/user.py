@@ -79,16 +79,15 @@ def signup():
         # Terraform 파일을 적용
         terraform_dir = '/home/ubuntu'  # Terraform이 실행될 디렉토리
         terraform_file = 'new-vpc.tf'  # Terraform 구성 파일명
+
+        return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
+            'Content-Type': 'application/json'}
         # new-vpc.tf 파일이 존재하는지 확인
         if os.path.exists(os.path.join(terraform_dir, terraform_file)):
             # Terraform init 명령 실행
             subprocess.run("terraform init -auto-approve", shell=True, cwd=terraform_dir)
-
             # Terraform apply 명령 실행
             subprocess.run("terraform apply -auto-approve", shell=True, cwd=terraform_dir)
-
-            return jsonify({"message": "계정 추가 및 로그인 성공", "token": access_token, 'userId': userId}), 200, {
-                'Content-Type': 'application/json'}
         else:
             return jsonify({"message": "Terraform 구성 파일이 존재하지 않습니다."}), 500, {'Content-Type': 'application/json'}
 
